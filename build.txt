@@ -1,0 +1,3 @@
+displayName = Easy Packets Lib
+author = DavidFDev
+version = 0.1
