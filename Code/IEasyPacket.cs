@@ -14,11 +14,17 @@ public interface IEasyPacket<T> : ILoadable where T : struct, IEasyPacket<T>
     [Pure]
     T Deserialise(BinaryReader reader, in SenderInfo senderInfo);
 
+    /// <summary>
+    ///     Do not implement!
+    /// </summary>
     void ILoadable.Load(Mod mod)
     {
         EasyPacketLoader.Register<T>(mod);
     }
 
+    /// <summary>
+    ///     Do not implement!
+    /// </summary>
     void ILoadable.Unload()
     {
     }

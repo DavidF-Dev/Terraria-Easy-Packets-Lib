@@ -56,7 +56,7 @@ internal sealed class EasyPacketLoader : ModSystem
     internal static HandleModPacketDelegate<T> GetHandler<T>() where T : struct, IEasyPacket<T>
     {
         var ptr = typeof(T).TypeHandle.Value;
-        return (HandleModPacketDelegate<T>)HandlerByPtr.GetValueOrDefault(ptr);
+        return HandlerByPtr.GetValueOrDefault(ptr) as HandleModPacketDelegate<T>;
     }
 
     #endregion
