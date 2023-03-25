@@ -1,1 +1,2 @@
-Easy Packets Lib is a pretty cool mod, it does...this. Modify this file with a description of your mod.
+A library mod that provides an easy solution for sending/receiving ModPackets with custom data.
+This mod may be a dependency of another mod. Do not remove it unless you're sure.
