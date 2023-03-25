@@ -11,24 +11,42 @@ internal sealed class EasyPacketLoader : ModSystem
 {
     #region Static Fields and Constants
 
-    private static readonly Dictionary<IntPtr, EasyPacket> ContentByPtr = new();
+    private static readonly Dictionary<ushort, EasyPacket> PacketByNetId = new();
+    private static readonly Dictionary<IntPtr, ushort> NetIdByPtr = new();
     private static readonly Dictionary<IntPtr, MulticastDelegate> HandlerByPtr = new();
+    private static ushort _netIdCounter;
 
     #endregion
 
     #region Static Methods
 
-    internal static void Register<T>(Mod mod) where T : struct, IEasyPacket<T>
+    internal static void Register(Mod mod, Type type)
     {
-        var instance = new EasyPacket<T>();
+        // Create a new default instance of the easy packet type
+        var instance = (EasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(type), true);
+        if (instance == null)
+        {
+            // TODO
+            return;
+        }
+
+        // Register the created instance
         mod.AddContent(instance);
-        ContentByPtr.Add(typeof(T).TypeHandle.Value, instance);
-        mod.Logger.Debug($"Registered IModPacket: {instance.Name}.");
+        var netId = _netIdCounter++;
+        PacketByNetId.Add(netId, instance);
+        NetIdByPtr.Add(type.TypeHandle.Value, netId);
+
+        mod.Logger.Debug($"Registered IModPacket<{type.Name}> (ID: {netId}).");
     }
 
-    internal static EasyPacket Get(IntPtr ptr)
+    internal static EasyPacket GetPacket(ushort netId)
     {
-        return ContentByPtr.GetValueOrDefault(ptr);
+        return PacketByNetId.GetValueOrDefault(netId);
+    }
+
+    internal static ushort GetNetId<T>() where T : struct, IEasyPacket<T>
+    {
+        return NetIdByPtr.GetValueOrDefault(typeof(T).TypeHandle.Value);
     }
 
     internal static void AddHandler<T>(HandleModPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
@@ -65,8 +83,10 @@ internal sealed class EasyPacketLoader : ModSystem
 
     public override void Unload()
     {
-        ContentByPtr.Clear();
+        PacketByNetId.Clear();
+        NetIdByPtr.Clear();
         HandlerByPtr.Clear();
+        _netIdCounter = 0;
     }
 
     #endregion
