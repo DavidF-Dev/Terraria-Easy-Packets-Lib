@@ -71,7 +71,7 @@ public sealed class ExamplePacketCommand : ModCommand
 
     public override string Command => "expacket";
 
-    public override CommandType Type => CommandType.Chat;
+    public override CommandType Type => CommandType.Console;
 
     #endregion
 
@@ -79,8 +79,8 @@ public sealed class ExamplePacketCommand : ModCommand
 
     public override void Action(CommandCaller caller, string input, string[] args)
     {
-        Mod.SendPacket(new ExamplePacket(10, 25));
         ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral($"Sending example packet from {Main.myPlayer}."), Color.White);
+        Mod.SendPacket(new ExamplePacket(10, 25));
     }
 
     #endregion

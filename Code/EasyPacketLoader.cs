@@ -39,6 +39,11 @@ internal sealed class EasyPacketLoader : ModSystem
         mod.Logger.Debug($"Registered IModPacket<{type.Name}> (ID: {netId}).");
     }
 
+    internal static bool IsRegistered<T>() where T : struct, IEasyPacket<T>
+    {
+        return NetIdByPtr.ContainsKey(typeof(T).TypeHandle.Value);
+    }
+
     internal static EasyPacket GetPacket(ushort netId)
     {
         return PacketByNetId.GetValueOrDefault(netId);

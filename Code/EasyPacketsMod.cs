@@ -15,6 +15,9 @@ public sealed class EasyPacketsMod : Mod
 
     public override void HandlePacket(BinaryReader reader, int whoAmI)
     {
+        // Getting 256 for some reason; might be a 1.4.4 issue
+        whoAmI = Math.Clamp(whoAmI, 0, 255);
+        
         // Get the mod that sent the packet using its net id
         var modNetId = reader.ReadInt16();
         Mod sentByMod = null;

@@ -37,6 +37,13 @@ public static class EasyPacketExtensions
     {
         if (Main.netMode == NetmodeID.SinglePlayer)
         {
+            // TODO
+            return;
+        }
+
+        if (!EasyPacketLoader.IsRegistered<T>())
+        {
+            // TODO
             return;
         }
 
