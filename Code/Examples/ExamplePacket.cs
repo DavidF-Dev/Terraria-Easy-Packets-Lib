@@ -10,6 +10,8 @@ using Terraria.Chat;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
+#pragma warning disable CS1591
+
 namespace EasyPacketsLib.Examples;
 
 public readonly struct ExamplePacket : IEasyPacket<ExamplePacket>

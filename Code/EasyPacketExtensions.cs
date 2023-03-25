@@ -11,6 +11,9 @@ using Terraria.ModLoader;
 
 namespace EasyPacketsLib;
 
+/// <summary>
+///     Extension methods for sending easy packets and handling how they are received.
+/// </summary>
 public static class EasyPacketExtensions
 {
     #region Static Methods
@@ -31,7 +34,7 @@ public static class EasyPacketExtensions
     public static void SendPacket<T>(this Mod mod, in T packet, int toClient = -1, int ignoreClient = -1, bool forward = false) where T : struct, IEasyPacket<T>
     {
         forward = forward && Main.netMode == NetmodeID.MultiplayerClient;
-        SendPacket(mod, in packet, (byte)Main.myPlayer, toClient, ignoreClient, forward);
+        SendPacket_Internal(mod, in packet, (byte)Main.myPlayer, toClient, ignoreClient, forward);
     }
 
     /// <summary>
@@ -74,7 +77,7 @@ public static class EasyPacketExtensions
         EasyPacketLoader.RemoveHandler(handler);
     }
 
-    internal static void SendPacket<T>(this Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
+    internal static void SendPacket_Internal<T>(this Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
     {
         if (Main.netMode == NetmodeID.SinglePlayer)
         {
