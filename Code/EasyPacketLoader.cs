@@ -1,3 +1,8 @@
+/*
+ *  EasyPacketLoader.cs
+ *  DavidFDev
+*/
+
 using System;
 using System.Collections.Generic;
 using Terraria.ModLoader;

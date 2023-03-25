@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+ *  EasyPacketExtensions.cs
+ *  DavidFDev
+*/
+
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;

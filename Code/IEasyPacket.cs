@@ -1,3 +1,8 @@
+/*
+ *  IEasyPacket.cs
+ *  DavidFDev
+*/
+
 using System.Diagnostics.Contracts;
 using System.IO;
 

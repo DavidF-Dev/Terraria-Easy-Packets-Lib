@@ -1,4 +1,9 @@
-﻿using System.IO;
+﻿/*
+ *  ExamplePacket.cs
+ *  DavidFDev
+*/
+
+using System.IO;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Chat;

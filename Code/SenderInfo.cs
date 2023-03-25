@@ -1,3 +1,8 @@
+/*
+ *  SenderInfo.cs
+ *  DavidFDev
+*/
+
 using Terraria;
 using Terraria.ModLoader;
 

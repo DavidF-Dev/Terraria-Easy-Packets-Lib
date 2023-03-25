@@ -1,3 +1,8 @@
+/*
+ *  EasyPacket.cs
+ *  DavidFDev
+*/
+
 using System.IO;
 using Terraria;
 using Terraria.ID;
