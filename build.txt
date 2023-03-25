@@ -1,3 +1,8 @@
 displayName = Easy Packets Lib
 author = DavidFDev
 version = 0.1
+homepage = https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib
+hideCode = false
+hideResources = false
+includeSource = false
+buildIgnore = Properties/*, *.md, *.DotSettings.user
