@@ -52,7 +52,7 @@ public static class EasyPacketExtensions
     ///                 Mod.RemovePacketHandler{ExamplePacket}(OnExamplePacketReceived);
     ///             }
     /// 
-    ///             private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo senderInfo, ref bool handled)
+    ///             private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
     ///             {
     ///                 Mod.Logger.Debug($"X: {packet.X}, Y: {packet.Y}");
     ///                 handled = true;

@@ -39,7 +39,7 @@ public readonly struct ExamplePacket : IEasyPacket<ExamplePacket>
         writer.Write(Y);
     }
 
-    ExamplePacket IEasyPacket<ExamplePacket>.Deserialise(BinaryReader reader, in SenderInfo senderInfo)
+    ExamplePacket IEasyPacket<ExamplePacket>.Deserialise(BinaryReader reader, in SenderInfo sender)
     {
         return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
     }
@@ -61,9 +61,9 @@ public sealed class ExamplePacketSystem : ModSystem
         Mod.RemovePacketHandler<ExamplePacket>(OnExamplePacketReceived);
     }
 
-    private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo senderInfo, ref bool handled)
+    private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
     {
-        ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral($"Received example packet from {senderInfo.WhoAmI}: ({packet.X}, {packet.Y})."), Color.White);
+        ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral($"Received example packet from {sender.WhoAmI}: ({packet.X}, {packet.Y})."), Color.White);
         handled = true;
     }
 

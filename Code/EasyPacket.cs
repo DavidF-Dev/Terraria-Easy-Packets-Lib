@@ -17,25 +17,25 @@ internal sealed class EasyPacket<T> : IEasyPacket where T : struct, IEasyPacket<
 {
     #region Methods
 
-    public void ReceivePacket(BinaryReader reader, in SenderInfo senderInfo)
+    public void ReceivePacket(BinaryReader reader, in SenderInfo sender)
     {
-        var packet = default(T).Deserialise(reader, in senderInfo);
+        var packet = default(T).Deserialise(reader, in sender);
 
         // Check if the packet should be automatically forwarded to clients
-        if (Main.netMode == NetmodeID.Server && senderInfo.Forwarded)
+        if (Main.netMode == NetmodeID.Server && sender.Forwarded)
         {
-            senderInfo.Mod.SendPacket(in packet, senderInfo.WhoAmI, senderInfo.ToClient, senderInfo.IgnoreClient, true);
+            sender.Mod.SendPacket(in packet, sender.WhoAmI, sender.ToClient, sender.IgnoreClient, true);
             return;
         }
 
         // Let any handlers handle the received packet
         var handler = EasyPacketLoader.GetHandler<T>();
         var handled = false;
-        handler?.Invoke(in packet, in senderInfo, ref handled);
+        handler?.Invoke(in packet, in sender, ref handled);
 
         if (!handled)
         {
-            senderInfo.Mod.Logger.Error($"Unhandled packet: {typeof(T).Name}.");
+            sender.Mod.Logger.Error($"Unhandled packet: {typeof(T).Name}.");
         }
     }
 

@@ -109,7 +109,7 @@ internal sealed class EasyPacketLoader : ModSystem
                          .Where(t => t.IsValueType && !t.ContainsGenericParameters && typeof(IEasyPacket<>).IsAssignableFrom(t))
                          .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
             {
-                Register(type);
+                Register(mod, type);
             }
         }
     }
@@ -126,8 +126,9 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <summary>
     ///     Register an easy packet.
     /// </summary>
+    /// <param name="mod">Mod that defined the easy packet.</param>
     /// <param name="type">Type that implements <see cref="IEasyPacket{T}" />.</param>
-    private void Register(Type type)
+    private void Register(Mod mod, Type type)
     {
         // Create a new default instance of the easy packet type
         // https://stackoverflow.com/a/1151470/20943906
@@ -142,7 +143,7 @@ internal sealed class EasyPacketLoader : ModSystem
         PacketByNetId.Add(netId, instance);
         NetIdByPtr.Add(type.TypeHandle.Value, netId);
 
-        Mod.Logger.Debug($"Registered IModPacket<{type.Name}> (ID: {netId}).");
+        Mod.Logger.Debug($"Registered IModPacket<{type.Name}> (Mod: {mod.Name}, ID: {netId}).");
     }
 
     #endregion

@@ -16,7 +16,7 @@ internal interface IEasyPacket
 {
     #region Methods
 
-    void ReceivePacket(BinaryReader reader, in SenderInfo senderInfo);
+    void ReceivePacket(BinaryReader reader, in SenderInfo sender);
 
     #endregion
 }
@@ -46,7 +46,7 @@ internal interface IEasyPacket
 ///                 writer.Write(Y);
 ///             }
 /// 
-///             ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo senderInfo)
+///             ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo sender)
 ///             {
 ///                 return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
 ///             }
@@ -79,14 +79,14 @@ public interface IEasyPacket<out T> where T : struct, IEasyPacket<T>
     /// </summary>
     /// <example>
     ///     <code>
-    ///         ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo senderInfo)
+    ///         ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo sender)
     ///         {
     ///             return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
     ///         }
     ///     </code>
     /// </example>
     [Pure]
-    T Deserialise(BinaryReader reader, in SenderInfo senderInfo);
+    T Deserialise(BinaryReader reader, in SenderInfo sender);
 
     #endregion
 }
