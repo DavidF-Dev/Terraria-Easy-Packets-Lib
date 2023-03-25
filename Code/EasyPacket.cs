@@ -25,7 +25,6 @@ internal sealed class EasyPacket<T> : IEasyPacket where T : struct, IEasyPacket<
         if (Main.netMode == NetmodeID.Server && sender.Forwarded)
         {
             sender.Mod.SendPacket(in packet, sender.WhoAmI, sender.ToClient, sender.IgnoreClient, true);
-            return;
         }
 
         // Let any handlers handle the received packet
