@@ -4,8 +4,6 @@ using Terraria.ModLoader;
 
 namespace EasyPacketsLib;
 
-public delegate void HandleModPacketDelegate<T>(in T packet, in SenderInfo senderInfo, ref bool handled) where T : struct, IEasyPacket<T>;
-
 // ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class EasyPacketLoader : ModSystem
 {
@@ -20,6 +18,11 @@ internal sealed class EasyPacketLoader : ModSystem
 
     #region Static Methods
 
+    /// <summary>
+    ///     Register an easy packet.
+    /// </summary>
+    /// <param name="mod">Mod to add the content to.</param>
+    /// <param name="type">Type that implements <see cref="IEasyPacket{T}" />.</param>
     internal static void Register(Mod mod, Type type)
     {
         // Create a new default instance of the easy packet type
@@ -27,8 +30,7 @@ internal sealed class EasyPacketLoader : ModSystem
         var instance = (EasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(type), true);
         if (instance == null)
         {
-            // TODO
-            return;
+            throw new Exception($"Failed to register easy packet type: {type.Name}.");
         }
 
         // Register the created instance
@@ -40,21 +42,34 @@ internal sealed class EasyPacketLoader : ModSystem
         mod.Logger.Debug($"Registered IModPacket<{type.Name}> (ID: {netId}).");
     }
 
+    /// <summary>
+    ///     Check if an easy packet is registered.
+    /// </summary>
     internal static bool IsRegistered<T>() where T : struct, IEasyPacket<T>
     {
         return NetIdByPtr.ContainsKey(typeof(T).TypeHandle.Value);
     }
 
+    /// <summary>
+    ///     Get an easy packet type by its registered net ID.
+    /// </summary>
     internal static EasyPacket GetPacket(ushort netId)
     {
         return PacketByNetId.GetValueOrDefault(netId);
     }
 
+    /// <summary>
+    ///     Get the registered net ID of an easy packet.
+    /// </summary>
     internal static ushort GetNetId<T>() where T : struct, IEasyPacket<T>
     {
-        return NetIdByPtr.GetValueOrDefault(typeof(T).TypeHandle.Value);
+        var ptr = typeof(T).TypeHandle.Value;
+        return NetIdByPtr.GetValueOrDefault(ptr);
     }
 
+    /// <summary>
+    ///     Add an easy packet handler.
+    /// </summary>
     internal static void AddHandler<T>(HandleModPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
     {
         var ptr = typeof(T).TypeHandle.Value;
@@ -66,6 +81,9 @@ internal sealed class EasyPacketLoader : ModSystem
         HandlerByPtr[ptr] = (MulticastDelegate)Delegate.Combine(HandlerByPtr[ptr], handler);
     }
 
+    /// <summary>
+    ///     Remove an easy packet handler.
+    /// </summary>
     internal static void RemoveHandler<T>(HandleModPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
     {
         var ptr = typeof(T).TypeHandle.Value;
@@ -77,6 +95,9 @@ internal sealed class EasyPacketLoader : ModSystem
         HandlerByPtr[ptr] = (MulticastDelegate)Delegate.Remove(HandlerByPtr[ptr], handler);
     }
 
+    /// <summary>
+    ///     Get the handler for an easy packet.
+    /// </summary>
     internal static HandleModPacketDelegate<T> GetHandler<T>() where T : struct, IEasyPacket<T>
     {
         var ptr = typeof(T).TypeHandle.Value;
@@ -89,6 +110,7 @@ internal sealed class EasyPacketLoader : ModSystem
 
     public override void Unload()
     {
+        // Ensure the static fields are cleared
         PacketByNetId.Clear();
         NetIdByPtr.Clear();
         HandlerByPtr.Clear();

@@ -3,13 +3,70 @@ using System.IO;
 
 namespace EasyPacketsLib;
 
-public interface IEasyPacket<T> where T : struct, IEasyPacket<T>
+/// <summary>
+///     An easy solution for sending/receiving ModPackets with custom data.
+///     Implement on a struct, preferably a readonly struct.<br />
+///     Send the packet using <see cref="EasyPacketExtensions.SendPacket{T}" />.<br />
+///     Handle the packet using <see cref="EasyPacketExtensions.AddPacketHandler{T}" />.
+/// </summary>
+/// <example>
+///     <code>
+///         public readonly struct ExamplePacket : IEasyPacket{ExamplePacket}
+///         {
+///             public readonly int X;
+///             public readonly int Y;
+/// 
+///             public ExamplePacket(int x, int y)
+///             {
+///                 X = x;
+///                 Y = y;
+///             }
+/// 
+///             void IEasyPacket{ExamplePacket}.Serialise(BinaryWriter writer)
+///             {
+///                 writer.Write(X);
+///                 writer.Write(Y);
+///             }
+/// 
+///             ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo senderInfo)
+///             {
+///                 return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
+///             }
+///         }
+///     </code>
+/// </example>
+public interface IEasyPacket<out T> where T : struct, IEasyPacket<T>
 {
     #region Methods
 
+    /// <summary>
+    ///     Serialise the packet data using the provided writer.
+    /// </summary>
+    /// <example>
+    ///     <code>
+    ///         void IEasyPacket{ExamplePacket}.Serialise(BinaryWriter writer)
+    ///         {
+    ///             writer.Write(X);
+    ///             writer.Write(Y);
+    ///         }
+    ///     </code>
+    /// </example>
+    // ReSharper disable once PureAttributeOnVoidMethod
     [Pure]
     void Serialise(BinaryWriter writer);
 
+    /// <summary>
+    ///     Deserialise the packet data using the provided reader.
+    ///     An error will be raised if not all data is read from the reader.
+    /// </summary>
+    /// <example>
+    ///     <code>
+    ///         ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo senderInfo)
+    ///         {
+    ///             return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
+    ///         }
+    ///     </code>
+    /// </example>
     [Pure]
     T Deserialise(BinaryReader reader, in SenderInfo senderInfo);
 

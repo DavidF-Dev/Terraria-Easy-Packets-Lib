@@ -9,23 +9,21 @@ using Terraria.ModLoader.Core;
 namespace EasyPacketsLib;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public sealed class EasyPacketsMod : Mod
+internal sealed class EasyPacketsMod : Mod
 {
     #region Methods
 
     public override void HandlePacket(BinaryReader reader, int whoAmI)
     {
-        // Getting 256 for some reason; might be a 1.4.4 issue
+        // BUG: Getting 256 for some reason; might be a 1.4.4 issue
         whoAmI = Math.Clamp(whoAmI, 0, 255);
-        
+
         // Get the mod that sent the packet using its net id
         var modNetId = reader.ReadInt16();
         var sentByMod = ModNet.GetMod(modNetId);
         if (sentByMod == null)
         {
-            // TODO
-            Logger.Error("Something went wrong.");
-            return;
+            throw new Exception($"HandlePacket received an invalid mod Net ID: {modNetId}. Could not find a mod with that Net ID.");
         }
 
         // Get the easy packet mod type using its net id
@@ -33,9 +31,7 @@ public sealed class EasyPacketsMod : Mod
         var packet = EasyPacketLoader.GetPacket(packetNetId);
         if (packet == null)
         {
-            // TODO
-            Logger.Error("Something went wrong.");
-            return;
+            throw new Exception($"HandlePacket received an invalid easy mod packet with Net ID: {packetNetId}. Could not find an easy mod packet with that Net ID.");
         }
 
         var flags = (BitsByte)reader.ReadByte();
