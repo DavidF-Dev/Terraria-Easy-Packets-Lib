@@ -19,20 +19,8 @@ public sealed class EasyPacketsMod : Mod
         whoAmI = Math.Clamp(whoAmI, 0, 255);
         
         // Get the mod that sent the packet using its net id
-        // TODO: Use ModLoader.GetMod(netId) when it becomes public
         var modNetId = reader.ReadInt16();
-        Mod sentByMod = null;
-        foreach (var mod in ModLoader.Mods)
-        {
-            if (mod.NetID != modNetId)
-            {
-                continue;
-            }
-
-            sentByMod = mod;
-            break;
-        }
-
+        var sentByMod = ModNet.GetMod(modNetId);
         if (sentByMod == null)
         {
             // TODO
