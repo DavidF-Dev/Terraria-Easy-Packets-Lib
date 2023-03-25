@@ -26,7 +26,7 @@ public static class EasyPacketExtensions
     /// <param name="packet">Packet instance that implements <see cref="IEasyPacket{T}" />.</param>
     /// <param name="toClient">If non-negative, this packet will only be sent to the specified client.</param>
     /// <param name="ignoreClient">If non-negative, this packet will not be sent to the specified client.</param>
-    /// <param name="forward">If sending from a client, the packet will be forwarded to other clients through the server.</param>
+    /// <param name="forward">If sending from a client, this packet will be forwarded to other clients through the server.</param>
     /// <typeparam name="T">Type that implements <see cref="IEasyPacket{T}" />.</typeparam>
     public static void SendPacket<T>(this Mod mod, in T packet, int toClient = -1, int ignoreClient = -1, bool forward = false) where T : struct, IEasyPacket<T>
     {
