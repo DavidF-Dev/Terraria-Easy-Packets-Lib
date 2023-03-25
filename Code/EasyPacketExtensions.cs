@@ -87,7 +87,7 @@ public static class EasyPacketExtensions
         }
 
         // Important that the packet is sent by this mod, so that it is received correctly
-        var modPacket = ModContent.GetInstance<EasyPacketsMod>().GetPacket();
+        var modPacket = ModContent.GetInstance<EasyPacketsLibMod>().GetPacket();
 
         // Mod's net id is synced across server and clients
         var modNetId = mod.NetID;
@@ -225,7 +225,7 @@ public static class EasyPacketExtensions
         for (var i = 0; i < bodyBytes.Length;)
         {
             // Important that the packet is sent by this mod, so that it is received correctly
-            var modPacket = ModContent.GetInstance<EasyPacketsMod>().GetPacket();
+            var modPacket = ModContent.GetInstance<EasyPacketsLibMod>().GetPacket();
 
             // Mod's net id is synced across server and clients
             var modNetId = mod.NetID;

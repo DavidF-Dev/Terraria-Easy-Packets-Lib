@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 namespace EasyPacketsLib;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-internal sealed class EasyPacketsMod : Mod
+internal sealed class EasyPacketsLibMod : Mod
 {
     #region Methods
 
