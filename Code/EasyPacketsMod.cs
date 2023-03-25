@@ -5,11 +5,9 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Core;
 
 namespace EasyPacketsLib;
 
@@ -61,27 +59,6 @@ internal sealed class EasyPacketsMod : Mod
 
         // Let the easy packet mod type receive the packet
         packet.ReceivePacket(reader, new SenderInfo(sentByMod, (byte)whoAmI, flags, toClient, ignoreClient));
-    }
-
-    public override void Load()
-    {
-        // Register easy packets, including from other mods
-        // Order must be the same for all users, so that net ids are synced
-        var c = 0;
-        foreach (var mod in ModLoader.Mods
-                     .Where(m => m.Side == ModSide.Both)
-                     .OrderBy(m => m.Name, StringComparer.InvariantCulture))
-        {
-            foreach (var type in AssemblyManager.GetLoadableTypes(mod.Code)
-                         .Where(t => t.IsValueType && !t.ContainsGenericParameters && typeof(IEasyPacket<>).IsAssignableFrom(t))
-                         .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
-            {
-                EasyPacketLoader.Register(mod, type);
-                c++;
-            }
-        }
-
-        Logger.Debug($"Registered {c} IEasyPacket<> types.");
     }
 
     #endregion

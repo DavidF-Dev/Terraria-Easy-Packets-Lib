@@ -9,6 +9,19 @@ using System.IO;
 namespace EasyPacketsLib;
 
 /// <summary>
+///     Implemented by <see cref="EasyPacket{T}" /> as a non-generic wrapper for receiving an easy packet and detouring it
+///     to the struct.
+/// </summary>
+internal interface IEasyPacket
+{
+    #region Methods
+
+    void ReceivePacket(BinaryReader reader, in SenderInfo senderInfo);
+
+    #endregion
+}
+
+/// <summary>
 ///     An easy solution for sending/receiving ModPackets with custom data.
 ///     Implement on a struct, preferably a readonly struct.<br />
 ///     Send the packet using <see cref="EasyPacketExtensions.SendPacket{T}" />.<br />

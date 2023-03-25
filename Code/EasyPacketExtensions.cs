@@ -10,25 +10,6 @@ using Terraria.ModLoader;
 
 namespace EasyPacketsLib;
 
-/// <summary>
-///     Handle a received easy mod packet.
-///     If a packet is received but is unhandled, an error is raised.
-/// </summary>
-/// <param name="packet">Packet received.</param>
-/// <param name="senderInfo">Information regarding the sender of the packet.</param>
-/// <param name="handled">An unhandled packet will raise an error.</param>
-/// <typeparam name="T">Type that implements <see cref="IEasyPacket{T}" />.</typeparam>
-/// <example>
-///     <code>
-///         private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo senderInfo, ref bool handled)
-///         {
-///             senderInfo.Mod.Logger.Debug($"X: {packet.X}, Y: {packet.Y}");
-///             handled = true;
-///         }
-///     </code>
-/// </example>
-public delegate void HandleModPacketDelegate<T>(in T packet, in SenderInfo senderInfo, ref bool handled) where T : struct, IEasyPacket<T>;
-
 public static class EasyPacketExtensions
 {
     #region Static Methods
@@ -81,13 +62,13 @@ public static class EasyPacketExtensions
     /// <param name="mod">Mod handling the packet.</param>
     /// <param name="handler">Method handling the packet.</param>
     /// <typeparam name="T">Type that implements <see cref="IEasyPacket{T}" />.</typeparam>
-    public static void AddPacketHandler<T>(this Mod mod, HandleModPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
+    public static void AddPacketHandler<T>(this Mod mod, HandleEasyPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
     {
         EasyPacketLoader.AddHandler(handler);
     }
 
     /// <inheritdoc cref="AddPacketHandler{T}" />
-    public static void RemovePacketHandler<T>(this Mod mod, HandleModPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
+    public static void RemovePacketHandler<T>(this Mod mod, HandleEasyPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
     {
         EasyPacketLoader.RemoveHandler(handler);
     }
