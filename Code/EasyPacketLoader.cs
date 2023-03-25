@@ -23,6 +23,7 @@ internal sealed class EasyPacketLoader : ModSystem
     internal static void Register(Mod mod, Type type)
     {
         // Create a new default instance of the easy packet type
+        // https://stackoverflow.com/a/1151470/20943906
         var instance = (EasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(type), true);
         if (instance == null)
         {
