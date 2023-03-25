@@ -19,7 +19,6 @@ internal sealed class EasyPacketLoader : ModSystem
     private static readonly Dictionary<ushort, IEasyPacket> PacketByNetId = new();
     private static readonly Dictionary<IntPtr, ushort> NetIdByPtr = new();
     private static readonly Dictionary<IntPtr, MulticastDelegate> HandlerByPtr = new();
-    private static ushort _netIdCounter;
 
     #endregion
 
@@ -87,6 +86,15 @@ internal sealed class EasyPacketLoader : ModSystem
 
     #endregion
 
+    #region Properties
+
+    /// <summary>
+    ///     Total number of easy packets registered across all mods.
+    /// </summary>
+    public static ushort NetEasyPacketCount { get; private set; }
+
+    #endregion
+
     #region Methods
 
     public override void Load()
@@ -112,7 +120,7 @@ internal sealed class EasyPacketLoader : ModSystem
         PacketByNetId.Clear();
         NetIdByPtr.Clear();
         HandlerByPtr.Clear();
-        _netIdCounter = 0;
+        NetEasyPacketCount = 0;
     }
 
     /// <summary>
@@ -130,7 +138,7 @@ internal sealed class EasyPacketLoader : ModSystem
         }
 
         // Register the created instance, assigning a unique net id
-        var netId = _netIdCounter++;
+        var netId = NetEasyPacketCount++;
         PacketByNetId.Add(netId, instance);
         NetIdByPtr.Add(type.TypeHandle.Value, netId);
 

@@ -4,6 +4,7 @@
 */
 
 using System;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -89,10 +90,26 @@ public static class EasyPacketExtensions
         var modPacket = ModContent.GetInstance<EasyPacketsMod>().GetPacket();
 
         // Mod's net id is synced across server and clients
-        modPacket.Write(mod.NetID);
+        var modNetId = mod.NetID;
+        if (ModNet.NetModCount < 256)
+        {
+            modPacket.Write((byte)modNetId);
+        }
+        else
+        {
+            modPacket.Write(modNetId);
+        }
 
         // Easy packet type's net id is synced across server and clients
-        modPacket.Write(EasyPacketLoader.GetNetId<T>());
+        var packetNetId = EasyPacketLoader.GetNetId<T>();
+        if (EasyPacketLoader.NetEasyPacketCount < 256)
+        {
+            modPacket.Write((byte)packetNetId);
+        }
+        else
+        {
+            modPacket.Write(packetNetId);
+        }
 
         // Write any additional flags
         var flags = new BitsByte {[0] = forward};
@@ -119,6 +136,153 @@ public static class EasyPacketExtensions
 
         // Finally, send the packet
         modPacket.Send(toClient, ignoreClient);
+    }
+
+    /// <summary>
+    ///     Work in progress.
+    /// </summary>
+    internal static void SendPacket_SplitSupport<T>(this Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
+    {
+        if (Main.netMode == NetmodeID.SinglePlayer)
+        {
+            throw new Exception("SendPacket called in single-player.");
+        }
+
+        if (!EasyPacketLoader.IsRegistered<T>())
+        {
+            throw new Exception($"SendPacket called on an unregistered type: {typeof(T).Name}.");
+        }
+
+        // Let the easy packet serialise itself, and retrieve the bytes to be sent in the packet body
+        byte[] bodyBytes;
+        using (var stream = new MemoryStream())
+        {
+            using (var writer = new BinaryWriter(stream))
+            {
+                packet.Serialise(writer);
+            }
+
+            stream.Flush();
+            bodyBytes = stream.GetBuffer();
+        }
+
+        if (bodyBytes.Length == 0)
+        {
+            // TODO: No body!
+            return;
+        }
+
+        // Determine the total size of the packet, in case it's over the max
+        var totalSize = bodyBytes.Length;
+
+        // Mod's net ID
+        if (ModNet.NetModCount < 256)
+        {
+            totalSize += sizeof(byte);
+        }
+        else
+        {
+            totalSize += sizeof(short);
+        }
+
+        // Easy packet's net ID
+        if (EasyPacketLoader.NetEasyPacketCount < 256)
+        {
+            totalSize += sizeof(byte);
+        }
+        else
+        {
+            totalSize += sizeof(ushort);
+        }
+
+        totalSize += sizeof(byte); // flags
+
+        // Special case if the packet is to be forwarded
+        if (forward)
+        {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                totalSize += sizeof(byte); // toClient
+                totalSize += sizeof(byte); // ignoreClient
+            }
+            else
+            {
+                totalSize += sizeof(byte); // whoAmI
+            }
+        }
+
+        // TODO: Take into account bytes added by ModPacket
+        totalSize += sizeof(short); // mod.NetID
+
+        // Check if the packet data needs to be separated into multiple packets
+        const int maxSize = int.MaxValue; // TODO
+        var split = totalSize >= maxSize;
+        if (split)
+        {
+            totalSize += sizeof(int);
+        }
+
+        for (var i = 0; i < bodyBytes.Length;)
+        {
+            // Important that the packet is sent by this mod, so that it is received correctly
+            var modPacket = ModContent.GetInstance<EasyPacketsMod>().GetPacket();
+
+            // Mod's net id is synced across server and clients
+            var modNetId = mod.NetID;
+            if (ModNet.NetModCount < 256)
+            {
+                modPacket.Write((byte)modNetId);
+            }
+            else
+            {
+                modPacket.Write(modNetId);
+            }
+
+            // Easy packet type's net id is synced across server and clients
+            var packetNetId = EasyPacketLoader.GetNetId<T>();
+            if (EasyPacketLoader.NetEasyPacketCount < 256)
+            {
+                modPacket.Write((byte)packetNetId);
+            }
+            else
+            {
+                modPacket.Write(packetNetId);
+            }
+
+            // Write any additional flags
+            var flags = new BitsByte {[0] = forward, [1] = split};
+            modPacket.Write(flags);
+
+            // Special case if the packet is to be forwarded
+            if (forward)
+            {
+                if (Main.netMode == NetmodeID.MultiplayerClient)
+                {
+                    // Send this so that the server knows who to forward the packet to
+                    modPacket.Write(toClient < 0 ? (byte)255 : (byte)toClient);
+                    modPacket.Write(ignoreClient < 0 ? (byte)255 : (byte)ignoreClient);
+                }
+                else
+                {
+                    // Send this so that the receiving client knows who originally forwarded the packet
+                    modPacket.Write(whoAmI);
+                }
+            }
+
+            // TODO: Determine length properly. This logic is wrong.
+            var length = Math.Min(bodyBytes.Length - i, maxSize - (totalSize - bodyBytes.Length));
+            if (split)
+            {
+                modPacket.Write(length);
+            }
+
+            // Write the packet data
+            modPacket.Write(new ReadOnlySpan<byte>(bodyBytes, i, i + length));
+            i += length;
+
+            // Finally, send the packet
+            modPacket.Send(toClient, ignoreClient);
+        }
     }
 
     #endregion

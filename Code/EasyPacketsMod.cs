@@ -22,7 +22,7 @@ internal sealed class EasyPacketsMod : Mod
         whoAmI = Math.Clamp(whoAmI, 0, 255);
 
         // Get the mod that sent the packet using its net id
-        var modNetId = reader.ReadInt16();
+        var modNetId = ModNet.NetModCount < 256 ? reader.ReadByte() : reader.ReadInt16();
         var sentByMod = ModNet.GetMod(modNetId);
         if (sentByMod == null)
         {
@@ -30,7 +30,7 @@ internal sealed class EasyPacketsMod : Mod
         }
 
         // Get the easy packet mod type using its net id
-        var packetNetId = reader.ReadUInt16();
+        var packetNetId = EasyPacketLoader.NetEasyPacketCount < 256 ? reader.ReadByte() : reader.ReadUInt16();
         var packet = EasyPacketLoader.GetPacket(packetNetId);
         if (packet == null)
         {
