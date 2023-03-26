@@ -1,2 +1,1 @@
-A library mod that provides an easy solution for sending/receiving ModPackets with custom data.
-View more information and documentation on [url=https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib]GitHub[/url], which also includes the source code.
+A library mod that provides an easy solution for sending/receiving ModPackets with custom data. View more information and documentation on [url=https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib]GitHub[/url], which also includes the source code.
