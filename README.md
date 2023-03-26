@@ -68,6 +68,10 @@ private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo send
 - `sender`: Information regarding the sender of the packet.
 - `handled`: An unhandled packet will raise an error.
 
+### Planned features
+- Automatically split large packets into multiple sub-packets.
+- Mod calls so that a strong reference is not absolutely required.
+
 ## Contact & Support
 
 If you have any questions or would like to get in contact, shoot me an email at `contact@davidfdev.com`.<br>
