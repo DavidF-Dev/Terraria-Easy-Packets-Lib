@@ -71,7 +71,35 @@ public static class EasyPacketExtensions
         EasyPacketLoader.AddHandler(handler);
     }
 
-    /// <inheritdoc cref="AddPacketHandler{T}" />
+    /// <summary>
+    ///     An easy packet handler is invoked when the packet is received.
+    ///     If a packet is received but is unhandled, an error is raised.
+    /// </summary>
+    /// <example>
+    ///     <code>
+    ///         public class ExamplePacketHandler : ModSystem
+    ///         {
+    ///             public override void Load()
+    ///             {
+    ///                 Mod.AddPacketHandler{ExamplePacket}(OnExamplePacketReceived);
+    ///             }
+    /// 
+    ///             public override void Unload()
+    ///             {
+    ///                 Mod.RemovePacketHandler{ExamplePacket}(OnExamplePacketReceived);
+    ///             }
+    /// 
+    ///             private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
+    ///             {
+    ///                 Mod.Logger.Debug($"X: {packet.X}, Y: {packet.Y}");
+    ///                 handled = true;
+    ///             }
+    ///         }
+    ///     </code>
+    /// </example>
+    /// <param name="mod">Mod handling the packet.</param>
+    /// <param name="handler">Method handling the packet.</param>
+    /// <typeparam name="T">Type that implements <see cref="IEasyPacket{T}" />.</typeparam>
     public static void RemovePacketHandler<T>(this Mod mod, HandleEasyPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
     {
         EasyPacketLoader.RemoveHandler(handler);
