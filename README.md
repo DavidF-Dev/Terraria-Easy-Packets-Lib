@@ -1,4 +1,10 @@
 # Easy Packets Library
+[![Release](https://img.shields.io/github/v/release/DavidF-Dev/Terraria-Easy-Packets-Lib?style=flat-square)](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib/releases/latest)
+[![Downloads](https://img.shields.io/steam/downloads/2952511711?style=flat-square)](https://steamcommunity.com/sharedfiles/filedetails/?id=2952511711)
+[![File Size](https://img.shields.io/steam/size/2952511711?style=flat-square)](https://steamcommunity.com/sharedfiles/filedetails/?id=2952511711)
+[![Issues](https://img.shields.io/github/issues/DavidF-Dev/Terraria-Easy-Packets-Lib?style=flat-square)](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib/issues)
+[![License](https://img.shields.io/github/license/DavidF-Dev/Terraria-Easy-Packets-Lib?style=flat-square)](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib/blob/main/LICENSE.md)
+
 A Terraria tModLoader library mod that provides an easy solution for sending/receiving `ModPackets` with custom data.
 
 ## Usage
@@ -8,8 +14,8 @@ A Terraria tModLoader library mod that provides an easy solution for sending/rec
 
 ### Referencing the library
 - Add `modReferences = EasyPacketsLib` to your mod's `build.txt` file.
-- Add `EasyPacketsLib.dll` to your project as a reference (download from [Releases](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib/releases)).
-- Subscribe to the library mod on the [Steam Workshop]().
+- Add `EasyPacketsLib.dll` to your project as a reference (download from [Releases](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib/releases/latest)).
+- Subscribe to the library mod on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2952511711).
 
 ### Defining the packet
 ```csharp
