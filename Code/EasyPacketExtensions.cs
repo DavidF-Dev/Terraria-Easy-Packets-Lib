@@ -170,7 +170,7 @@ public static class EasyPacketExtensions
     }
 
     /// <summary>
-    ///     Work in progress.
+    ///     Work in progress. Do not use.
     /// </summary>
     internal static void SendPacket_SplitSupport<T>(this Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
     {
@@ -199,8 +199,7 @@ public static class EasyPacketExtensions
 
         if (bodyBytes.Length == 0)
         {
-            // TODO: No body!
-            return;
+            throw new Exception($"SendPacket called on an empty packet: {typeof(T).Name}.");
         }
 
         // Determine the total size of the packet, in case it's over the max
@@ -250,7 +249,7 @@ public static class EasyPacketExtensions
         var split = totalSize >= maxSize;
         if (split)
         {
-            totalSize += sizeof(int);
+            totalSize += sizeof(int); // length
         }
 
         for (var i = 0; i < bodyBytes.Length;)
