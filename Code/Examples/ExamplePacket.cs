@@ -10,11 +10,9 @@ using Terraria.Chat;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
-#pragma warning disable CS1591
-
 namespace EasyPacketsLib.Examples;
 
-public readonly struct ExamplePacket : IEasyPacket<ExamplePacket>
+internal readonly struct ExamplePacket : IEasyPacket<ExamplePacket>
 {
     #region Fields
 
@@ -49,7 +47,7 @@ public readonly struct ExamplePacket : IEasyPacket<ExamplePacket>
     #endregion
 }
 
-public sealed class ExamplePacketSystem : ModSystem
+internal sealed class ExamplePacketSystem : ModSystem
 {
     #region Methods
 
@@ -72,7 +70,7 @@ public sealed class ExamplePacketSystem : ModSystem
     #endregion
 }
 
-public sealed class ExamplePacketCommand : ModCommand
+internal sealed class ExamplePacketCommand : ModCommand
 {
     #region Properties
 
