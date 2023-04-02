@@ -47,6 +47,21 @@ internal readonly struct ExamplePacket : IEasyPacket<ExamplePacket>
     #endregion
 }
 
+// ReSharper disable once UnusedType.Global
+internal readonly struct ExamplePacketHandler : IEasyPacketHandler<ExamplePacket>
+{
+    #region Methods
+
+    void IEasyPacketHandler<ExamplePacket>.Receive(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
+    {
+        ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral($"{nameof(ExamplePacketHandler)}: Received example packet from {sender.WhoAmI}: ({packet.X}, {packet.Y})."), Color.White);
+        handled = true;
+    }
+
+    #endregion
+}
+
+// ReSharper disable once UnusedType.Global
 internal sealed class ExamplePacketSystem : ModSystem
 {
     #region Methods
@@ -63,13 +78,14 @@ internal sealed class ExamplePacketSystem : ModSystem
 
     private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
     {
-        ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral($"Received example packet from {sender.WhoAmI}: ({packet.X}, {packet.Y})."), Color.White);
+        ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral($"{nameof(ExamplePacketSystem)}: Received example packet from {sender.WhoAmI}: ({packet.X}, {packet.Y})."), Color.White);
         handled = true;
     }
 
     #endregion
 }
 
+// ReSharper disable once UnusedType.Global
 internal sealed class ExamplePacketCommand : ModCommand
 {
     #region Properties
