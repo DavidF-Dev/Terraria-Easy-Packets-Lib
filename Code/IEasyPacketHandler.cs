@@ -1,4 +1,9 @@
-﻿using Terraria.ModLoader;
+﻿/*
+ *  IEasyPacketHandler.cs
+ *  DavidFDev
+*/
+
+using Terraria.ModLoader;
 
 namespace EasyPacketsLib;
 

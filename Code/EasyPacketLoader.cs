@@ -19,6 +19,8 @@ internal sealed class EasyPacketLoader : ModSystem
     private static readonly Dictionary<ushort, IEasyPacket> PacketByNetId = new();
     private static readonly Dictionary<IntPtr, ushort> NetIdByPtr = new();
     private static readonly Dictionary<IntPtr, MulticastDelegate> HandlerByPtr = new();
+    private static readonly string EasyPacketFullName;
+    private static readonly string EasyPacketHandlerFullName;
 
     #endregion
 
@@ -86,6 +88,17 @@ internal sealed class EasyPacketLoader : ModSystem
 
     #endregion
 
+    #region Constructors
+
+    static EasyPacketLoader()
+    {
+        // Cache the full interface type definitions to be used during loading
+        EasyPacketFullName = typeof(IEasyPacket<>).GetGenericTypeDefinition().FullName;
+        EasyPacketHandlerFullName = typeof(IEasyPacketHandler<>).GetGenericTypeDefinition().FullName;
+    }
+
+    #endregion
+
     #region Properties
 
     /// <summary>
@@ -99,7 +112,7 @@ internal sealed class EasyPacketLoader : ModSystem
 
     public override void Load()
     {
-        // Register easy packets, including from other mods
+        // Register easy packets and handlers, including from other mods
         // Order must be the same for all users, so that net ids are synced
         foreach (var mod in ModLoader.Mods
                      .Where(m => m.Side == ModSide.Both)
@@ -107,15 +120,14 @@ internal sealed class EasyPacketLoader : ModSystem
         {
             var loadableTypes = AssemblyManager.GetLoadableTypes(mod.Code);
             foreach (var type in loadableTypes
-                         .Where(t => t.IsValueType && !t.ContainsGenericParameters && typeof(IEasyPacket<>).IsAssignableFrom(t))
+                         .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketFullName) != null)
                          .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
             {
                 RegisterPacket(mod, type);
             }
-            
-            // Register easy packet handlers too
+
             foreach (var type in loadableTypes
-                         .Where(t => t.IsValueType && !t.ContainsGenericParameters && typeof(IEasyPacketHandler<>).IsAssignableFrom(t))
+                         .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketHandlerFullName) != null)
                          .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
             {
                 RegisterHandler(mod, type);
@@ -141,7 +153,7 @@ internal sealed class EasyPacketLoader : ModSystem
     {
         // Create a new default instance of the easy packet type
         // https://stackoverflow.com/a/1151470/20943906
-        var instance = (IEasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(type), true);
+        var instance = (IEasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(type.GetInterface(EasyPacketFullName)!.GetGenericArguments()[0]), true);
         if (instance == null)
         {
             throw new Exception($"Failed to register easy packet type: {type.Name}.");
@@ -163,7 +175,7 @@ internal sealed class EasyPacketLoader : ModSystem
     private void RegisterHandler(Mod mod, Type type)
     {
         // Create a new default instance of the easy packet handler type, and allow it to register it instead
-        var instance = (IEasyPacketHandler)Activator.CreateInstance(typeof(EasyPacketHandler<,>).MakeGenericType(type, type.GetGenericArguments()[0]), true);
+        var instance = (IEasyPacketHandler)Activator.CreateInstance(typeof(EasyPacketHandler<,>).MakeGenericType(type, type.GetInterface(EasyPacketHandlerFullName)!.GetGenericArguments()[0]), true);
         if (instance == null)
         {
             throw new Exception($"Failed to register easy packet type: {type.Name}.");
@@ -171,7 +183,7 @@ internal sealed class EasyPacketLoader : ModSystem
 
         // The instance is thrown away because its only purpose is to register itself as a handler
         instance.Register(mod);
-        
+
         Mod.Logger.Debug($"Registered IEasyPacketHandler<{type.Name}> (Mod: {mod.Name}).");
     }
 

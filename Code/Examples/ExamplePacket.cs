@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 
 namespace EasyPacketsLib.Examples;
 
-internal readonly struct ExamplePacket : IEasyPacket<ExamplePacket>
+internal readonly struct ExamplePacket : IEasyPacket<ExamplePacket>, IEasyPacketHandler<ExamplePacket>
 {
     #region Fields
 
@@ -42,6 +42,12 @@ internal readonly struct ExamplePacket : IEasyPacket<ExamplePacket>
     ExamplePacket IEasyPacket<ExamplePacket>.Deserialise(BinaryReader reader, in SenderInfo sender)
     {
         return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
+    }
+
+    void IEasyPacketHandler<ExamplePacket>.Receive(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
+    {
+        ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral($"{nameof(ExamplePacket)}: Received example packet from {sender.WhoAmI}: ({packet.X}, {packet.Y})."), Color.White);
+        handled = true;
     }
 
     #endregion
@@ -92,7 +98,7 @@ internal sealed class ExamplePacketCommand : ModCommand
 
     public override string Command => "expacket";
 
-    public override CommandType Type => CommandType.Console;
+    public override CommandType Type => CommandType.Chat;
 
     #endregion
 
