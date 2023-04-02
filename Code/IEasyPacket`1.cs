@@ -1,5 +1,5 @@
 /*
- *  IEasyPacket.cs
+ *  IEasyPacket`1.cs
  *  DavidFDev
 */
 
@@ -7,19 +7,6 @@ using System.Diagnostics.Contracts;
 using System.IO;
 
 namespace EasyPacketsLib;
-
-/// <summary>
-///     Implemented by <see cref="EasyPacket{T}" /> as a non-generic wrapper for receiving an easy packet and detouring it
-///     to the struct.
-/// </summary>
-internal interface IEasyPacket
-{
-    #region Methods
-
-    void ReceivePacket(BinaryReader reader, in SenderInfo sender);
-
-    #endregion
-}
 
 /// <summary>
 ///     An easy solution for sending/receiving ModPackets with custom data.

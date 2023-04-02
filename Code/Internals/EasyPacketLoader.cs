@@ -9,7 +9,7 @@ using System.Linq;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
 
-namespace EasyPacketsLib;
+namespace EasyPacketsLib.Internals;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class EasyPacketLoader : ModSystem

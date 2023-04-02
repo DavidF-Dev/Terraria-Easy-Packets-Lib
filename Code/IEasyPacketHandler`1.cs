@@ -1,23 +1,9 @@
 ﻿/*
- *  IEasyPacketHandler.cs
+ *  IEasyPacketHandler`1.cs
  *  DavidFDev
 */
 
-using Terraria.ModLoader;
-
 namespace EasyPacketsLib;
-
-/// <summary>
-///     Implemented by <see cref="EasyPacketHandler{T1,T2}" /> as a non-generic wrapper for handling a packet.
-/// </summary>
-internal interface IEasyPacketHandler
-{
-    #region Methods
-
-    void Register(Mod mod);
-
-    #endregion
-}
 
 /// <summary>
 ///     An easy solution for handled received easy packets.

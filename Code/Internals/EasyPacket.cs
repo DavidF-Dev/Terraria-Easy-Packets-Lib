@@ -7,7 +7,7 @@ using System.IO;
 using Terraria;
 using Terraria.ID;
 
-namespace EasyPacketsLib;
+namespace EasyPacketsLib.Internals;
 
 /// <summary>
 ///     Generic wrapper for an <see cref="IEasyPacket{T}" /> type.

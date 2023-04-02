@@ -5,7 +5,7 @@
 
 using Terraria.ModLoader;
 
-namespace EasyPacketsLib;
+namespace EasyPacketsLib.Internals;
 
 /// <summary>
 ///     Generic wrapper for an <see cref="IEasyPacketHandler{T}" /> type.

@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using EasyPacketsLib.Internals;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
