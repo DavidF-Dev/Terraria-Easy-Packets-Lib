@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added IEasyPacketHandler`1 generic interface for implementing code to receive a packet.
 - Changed project structure: moved internal code into its own directory and namespace.
 - Fixed issue with some interfaces not being loaded if generic argument does not match implementing type.
+- Fixed loading code not producing an error if the easy packet type isn't declared properly.
 
 ## [0.1.1] - 2023-04-01
 

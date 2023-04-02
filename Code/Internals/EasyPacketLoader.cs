@@ -6,6 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
 
@@ -151,9 +153,21 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <param name="type">Type that implements <see cref="IEasyPacket{T}" />.</param>
     private void RegisterPacket(Mod mod, Type type)
     {
+        // Ensure the interface generic argument matches the type implementing it
+        // This is not enforced by the code, so we must check it here and explain why in detail
+        var genericArg = type.GetInterface(EasyPacketFullName)!.GetGenericArguments()[0];
+        if (genericArg != type)
+        {
+            throw new Exception($"Failed to register easy packet type: {type.Name}." +
+                                $"\nActual:\n   struct {type.Name} : IEasyPacket<[c/{Color.Red.Hex3()}:{genericArg.Name}]>" +
+                                $"\nExpected:\n   struct {type.Name} : IEasyPacket<[c/{Color.Green.Hex3()}:{type.Name}]>" +
+                                "\nPlease fix the struct definition so that the interface generic argument matches the type implementing it." +
+                                $"\nDefined in mod: [c/{Color.Yellow.Hex3()}:{mod.Name}].\n");
+        }
+
         // Create a new default instance of the easy packet type
         // https://stackoverflow.com/a/1151470/20943906
-        var instance = (IEasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(type.GetInterface(EasyPacketFullName)!.GetGenericArguments()[0]), true);
+        var instance = (IEasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(genericArg), true);
         if (instance == null)
         {
             throw new Exception($"Failed to register easy packet type: {type.Name}.");
