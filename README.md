@@ -54,6 +54,26 @@ Mod.SendPacket(new ExamplePacket(1, 2), toClient: -1, ignoreClient: -1, forward:
 - `forward`: If sending from a client, the packet will be forwarded to other clients through the server.
 
 ### Receiving the packet
+
+The packet can be received in two ways, both of which use the following parameters:
+- `packet`: Packet data received.
+- `sender`: Information regarding the sender of the packet.
+- `handled`: An unhandled packet will raise an error.
+
+#### Using the interface
+```csharp
+public readonly struct ExamplePacketHandler : IEasyPacketHandler<ExamplePacket>
+{
+    void IEasyPacketHandler<ExamplePacket>.Receive(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
+    {
+        handled = true;
+    }
+}
+```
+Any struct that implements the interface will be loaded automatically.
+You are free to implement `IEasyPacket<T>` and `IEasyPacketHandler<T>` on the same type.
+
+#### Using the methods
 ```csharp
 public override void Load()
 {
@@ -70,9 +90,12 @@ private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo send
     handled = true;
 }
 ```
-- `packet`: Packet data received.
-- `sender`: Information regarding the sender of the packet.
-- `handled`: An unhandled packet will raise an error.
+Adding and removing handlers can occur at any time; it is not restricted to when the mod is loading/unloading.
+In the above example (in `ModSystem`), removing the handler can be omitted as this happens automatically when the mod unloads.
+
+### Live examples
+- [ExamplePacket.cs](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib/blob/main/Code/Examples/ExamplePacket.cs)
+- [Downed NPC Library](https://github.com/DavidF-Dev/Terraria-Downed-NPC-Lib/blob/main/Code/DownedNPCPacket.cs)
 
 ## Contact & Support
 
