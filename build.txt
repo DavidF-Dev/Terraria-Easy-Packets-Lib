@@ -1,6 +1,6 @@
 displayName = Easy Packets Library
 author = DavidFDev
-version = 0.1.2
+version = 1.0.0
 homepage = https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib
 hideCode = false
 hideResources = true
