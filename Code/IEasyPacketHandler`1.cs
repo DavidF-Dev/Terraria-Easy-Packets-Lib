@@ -11,9 +11,9 @@ namespace EasyPacketsLib;
 /// </summary>
 /// <example>
 ///     <code>
-///         public readonly struct ExamplePacketHandler : IEasyPacketHandler{ExamplePacket}
+///         public readonly struct ExamplePacketHandler : IEasyPacketHandler&lt;ExamplePacket&gt;
 ///         {
-///             void IEasyPacketHandler{ExamplePacket}.Receive(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
+///             void IEasyPacketHandler&lt;ExamplePacket&gt;.Receive(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
 ///             {
 ///                 sender.Mod.Logger.Debug($"X: {packet.X}, Y: {packet.Y}");
 ///                 handled = true;
@@ -34,7 +34,7 @@ public interface IEasyPacketHandler<T> where T : struct, IEasyPacket<T>
     /// <param name="handled">An unhandled packet will raise an error.</param>
     /// <example>
     ///     <code>
-    ///         void IEasyPacketHandler{ExamplePacket}.Receive(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
+    ///         void IEasyPacketHandler&lt;ExamplePacket&gt;.Receive(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
     ///         {
     ///             sender.Mod.Logger.Debug($"X: {packet.X}, Y: {packet.Y}");
     ///             handled = true;

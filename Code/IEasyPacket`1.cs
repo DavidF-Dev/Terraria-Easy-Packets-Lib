@@ -16,7 +16,7 @@ namespace EasyPacketsLib;
 /// </summary>
 /// <example>
 ///     <code>
-///         public readonly struct ExamplePacket : IEasyPacket{ExamplePacket}
+///         public readonly struct ExamplePacket : IEasyPacket&lt;ExamplePacket&gt;
 ///         {
 ///             public readonly int X;
 ///             public readonly int Y;
@@ -27,13 +27,13 @@ namespace EasyPacketsLib;
 ///                 Y = y;
 ///             }
 /// 
-///             void IEasyPacket{ExamplePacket}.Serialise(BinaryWriter writer)
+///             void IEasyPacket&lt;ExamplePacket&gt;.Serialise(BinaryWriter writer)
 ///             {
 ///                 writer.Write(X);
 ///                 writer.Write(Y);
 ///             }
 /// 
-///             ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo sender)
+///             ExamplePacket IEasyPacket&lt;ExamplePacket&gt;.Deserialise(BinaryReader reader, in SenderInfo sender)
 ///             {
 ///                 return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
 ///             }
@@ -49,7 +49,7 @@ public interface IEasyPacket<out T> where T : struct, IEasyPacket<T>
     /// </summary>
     /// <example>
     ///     <code>
-    ///         void IEasyPacket{ExamplePacket}.Serialise(BinaryWriter writer)
+    ///         void IEasyPacket&lt;ExamplePacket&gt;.Serialise(BinaryWriter writer)
     ///         {
     ///             writer.Write(X);
     ///             writer.Write(Y);
@@ -66,7 +66,7 @@ public interface IEasyPacket<out T> where T : struct, IEasyPacket<T>
     /// </summary>
     /// <example>
     ///     <code>
-    ///         ExamplePacket IEasyPacket{ExamplePacket}.Deserialise(BinaryReader reader, in SenderInfo sender)
+    ///         ExamplePacket IEasyPacket&lt;ExamplePacket&gt;.Deserialise(BinaryReader reader, in SenderInfo sender)
     ///         {
     ///             return new ExamplePacket(reader.ReadInt32(), reader.ReadInt32());
     ///         }

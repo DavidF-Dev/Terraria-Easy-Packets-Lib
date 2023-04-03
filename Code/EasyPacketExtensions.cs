@@ -48,12 +48,12 @@ public static class EasyPacketExtensions
     ///         {
     ///             public override void Load()
     ///             {
-    ///                 Mod.AddPacketHandler{ExamplePacket}(OnExamplePacketReceived);
+    ///                 Mod.AddPacketHandler&lt;ExamplePacket&gt;(OnExamplePacketReceived);
     ///             }
     /// 
     ///             public override void Unload()
     ///             {
-    ///                 Mod.RemovePacketHandler{ExamplePacket}(OnExamplePacketReceived);
+    ///                 Mod.RemovePacketHandler&lt;ExamplePacket&gt;(OnExamplePacketReceived);
     ///             }
     /// 
     ///             private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
@@ -82,12 +82,12 @@ public static class EasyPacketExtensions
     ///         {
     ///             public override void Load()
     ///             {
-    ///                 Mod.AddPacketHandler{ExamplePacket}(OnExamplePacketReceived);
+    ///                 Mod.AddPacketHandler&lt;ExamplePacket&gt;(OnExamplePacketReceived);
     ///             }
     /// 
     ///             public override void Unload()
     ///             {
-    ///                 Mod.RemovePacketHandler{ExamplePacket}(OnExamplePacketReceived);
+    ///                 Mod.RemovePacketHandler&lt;ExamplePacket&gt;(OnExamplePacketReceived);
     ///             }
     /// 
     ///             private void OnExamplePacketReceived(in ExamplePacket packet, in SenderInfo sender, ref bool handled)
