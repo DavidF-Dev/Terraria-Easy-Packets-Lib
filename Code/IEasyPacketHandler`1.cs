@@ -8,6 +8,7 @@ namespace EasyPacketsLib;
 /// <summary>
 ///     An easy solution for handled received easy packets.
 ///     Implement on a struct, preferably a readonly struct.
+///     This can be implemented alongside <see cref="IEasyPacket{T}"/> on the same type.
 /// </summary>
 /// <example>
 ///     <code>
