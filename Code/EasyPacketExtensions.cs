@@ -106,6 +106,29 @@ public static class EasyPacketExtensions
         EasyPacketLoader.RemoveHandler(handler);
     }
 
+    /// <summary>
+    ///     Serialise an easy packet.
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="packet">Packet instance that implements <see cref="IEasyPacket{T}" />.</param>
+    /// <typeparam name="T">Type that implements <see cref="IEasyPacket{T}" />.</typeparam>
+    public static void Write<T>(this BinaryWriter writer, in T packet) where T : struct, IEasyPacket<T>
+    {
+        packet.Serialise(writer);
+    }
+
+    /// <summary>
+    ///     Deserialise an easy packet.
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <param name="sender">Information regarding the sender of the packet.</param>
+    /// <typeparam name="T">Type that implements <see cref="IEasyPacket{T}" />.</typeparam>
+    /// <returns>Packet instance that implements <see cref="IEasyPacket{T}" />.</returns>
+    public static T Read<T>(this BinaryReader reader, in SenderInfo sender) where T : struct, IEasyPacket<T>
+    {
+        return new T().Deserialise(reader, in sender);
+    }
+    
     internal static void SendPacket_Internal<T>(this Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
     {
         if (Main.netMode == NetmodeID.SinglePlayer)

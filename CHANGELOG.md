@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added extension method overloads to read and write easy packets using binary reader and binary writer.
+
 ## [1.0.0] - 2023-04-03
 
 - Added `IEasyPacketHandler<T>` generic interface for implementing code to receive a packet.
