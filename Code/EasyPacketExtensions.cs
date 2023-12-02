@@ -141,6 +141,20 @@ public static class EasyPacketExtensions
             throw new Exception($"SendPacket called on an unregistered type: {typeof(T).Name}.");
         }
 
+        // TODO: Check Side=NoSync works
+        // Check if the mod is synced
+        if (!mod.IsNetSynced)
+        {
+            // Client's IsNetSynced is true if Side=Both, but if Side=NoSync, true if the server has the mod
+            // Server's IsNetSynced is true if Side=Both or Side=NoSync
+            if (Main.netMode == NetmodeID.MultiplayerClient && mod.Side == ModSide.NoSync)
+            {
+                return;
+            }
+
+            throw new Exception("SendPacket called on an un-synced mod.");
+        }
+        
         // Important that the packet is sent by this mod, so that it is received correctly
         var modPacket = ModContent.GetInstance<EasyPacketsLibMod>().GetPacket();
 
@@ -167,7 +181,8 @@ public static class EasyPacketExtensions
         }
 
         // Write any additional flags
-        var flags = new BitsByte {[0] = forward};
+        var expected = mod.Side == ModSide.Both;
+        var flags = new BitsByte {[0] = forward, [1] = expected};
         modPacket.Write(flags);
 
         // Special case if the packet is to be forwarded

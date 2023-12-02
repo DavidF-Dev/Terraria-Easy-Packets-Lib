@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added support for mods using Side=NoSync.
+
 ## [1.0.1] - 2023-06-10
 
 - Added extension method overloads to read and write easy packets using binary reader and binary writer.
