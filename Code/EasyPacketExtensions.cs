@@ -141,7 +141,6 @@ public static class EasyPacketExtensions
             throw new Exception($"SendPacket called on an unregistered type: {typeof(T).Name}.");
         }
 
-        // TODO: Check Side=NoSync works
         // Check if the mod is synced
         if (!mod.IsNetSynced)
         {
