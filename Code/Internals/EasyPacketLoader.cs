@@ -117,7 +117,7 @@ internal sealed class EasyPacketLoader : ModSystem
         // Register easy packets and handlers, including from other mods
         // Order must be the same for all users, so that net ids are synced
         foreach (var mod in ModLoader.Mods
-                     .Where(m => m.Side == ModSide.Both)
+                     .Where(m => m.Side is ModSide.Both or ModSide.NoSync)
                      .OrderBy(m => m.Name, StringComparer.InvariantCulture))
         {
             var loadableTypes = AssemblyManager.GetLoadableTypes(mod.Code);
