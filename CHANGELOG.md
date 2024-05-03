@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added support for mods using Side=NoSync.
 
+## [1.0.2] - 2024-05-04
+
+- Changed project from NET 6.0 to NET 8.0.
+
 ## [1.0.1] - 2023-06-10
 
 - Added extension method overloads to read and write easy packets using binary reader and binary writer.
