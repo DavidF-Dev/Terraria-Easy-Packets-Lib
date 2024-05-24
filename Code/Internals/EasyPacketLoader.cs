@@ -116,9 +116,8 @@ internal sealed class EasyPacketLoader : ModSystem
     {
         // Register easy packets and handlers, including from other mods
         // Order must be the same for all users, so that net ids are synced
-        // TODO: Including Side=NoSync mods will cause ids to not be the same for all users; can the mod and type name be hashed and used as the id?
         foreach (var mod in ModLoader.Mods
-                     .Where(m => m.Side is ModSide.Both /*or ModSide.NoSync*/)
+                     .Where(m => m.Side is ModSide.Both)
                      .OrderBy(m => m.Name, StringComparer.InvariantCulture))
         {
             var loadableTypes = AssemblyManager.GetLoadableTypes(mod.Code);

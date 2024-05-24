@@ -207,151 +207,65 @@ public static class EasyPacketExtensions
         modPacket.Send(toClient, ignoreClient);
     }
 
-    /// <summary>
-    ///     Work in progress. Do not use.
-    /// </summary>
-    internal static void SendPacket_SplitSupport<T>(this Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
+    internal static void HandlePacket_Internal(BinaryReader reader, int whoAmI)
     {
         if (Main.netMode == NetmodeID.SinglePlayer)
         {
-            throw new Exception("SendPacket called in single-player.");
+            throw new Exception("HandlePacket called in single-player.");
         }
+        
+        whoAmI = Math.Clamp(whoAmI, 0, 255);
 
-        if (!EasyPacketLoader.IsRegistered<T>())
+        var modNetId = ModNet.NetModCount < 256 ? reader.ReadByte() : reader.ReadInt16();
+        var packetNetId = EasyPacketLoader.NetEasyPacketCount < 256 ? reader.ReadByte() : reader.ReadUInt16();
+        var flags = (BitsByte)reader.ReadByte();
+        var forward = flags[0];
+        var expected = flags[1];
+        
+        // Get the mod that sent the packet using its net id
+        var sentByMod = ModNet.GetMod(modNetId);
+        
+        // Check if the mod exists and is synced
+        if (sentByMod is not {IsNetSynced: true})
         {
-            throw new Exception($"SendPacket called on an unregistered type: {typeof(T).Name}.");
-        }
-
-        // Let the easy packet serialise itself, and retrieve the bytes to be sent in the packet body
-        byte[] bodyBytes;
-        using (var stream = new MemoryStream())
-        {
-            using (var writer = new BinaryWriter(stream))
+            // Don't throw if it's okay that the mod doesn't exist
+            // This means the mod on the server has Side=NoSync and this client doesn't have the mod
+            if (Main.netMode == NetmodeID.MultiplayerClient && !expected)
             {
-                packet.Serialise(writer);
+                return;
             }
-
-            stream.Flush();
-            bodyBytes = stream.GetBuffer();
+            
+            throw new Exception($"HandlePacket received an invalid mod Net ID: {modNetId}. Could not find a mod with that Net ID.");
         }
 
-        if (bodyBytes.Length == 0)
+        // Get the easy packet mod type using its net id
+        var packet = EasyPacketLoader.GetPacket(packetNetId);
+        if (packet == null)
         {
-            throw new Exception($"SendPacket called on an empty packet: {typeof(T).Name}.");
+            throw new Exception($"HandlePacket received an invalid easy mod packet with Net ID: {packetNetId}. Could not find an easy mod packet with that Net ID.");
         }
 
-        // Determine the total size of the packet, in case it's over the max
-        var totalSize = bodyBytes.Length;
-
-        // Mod's net ID
-        if (ModNet.NetModCount < 256)
-        {
-            totalSize += sizeof(byte);
-        }
-        else
-        {
-            totalSize += sizeof(short);
-        }
-
-        // Easy packet's net ID
-        if (EasyPacketLoader.NetEasyPacketCount < 256)
-        {
-            totalSize += sizeof(byte);
-        }
-        else
-        {
-            totalSize += sizeof(ushort);
-        }
-
-        totalSize += sizeof(byte); // flags
-
-        // Special case if the packet is to be forwarded
+        // Special case if the packet was forwarded
+        byte toClient = 255;
+        byte ignoreClient = 255;
         if (forward)
         {
-            if (Main.netMode == NetmodeID.MultiplayerClient)
+            if (Main.netMode == NetmodeID.Server)
             {
-                totalSize += sizeof(byte); // toClient
-                totalSize += sizeof(byte); // ignoreClient
+                // Server knows who to forward the packet to
+                toClient = reader.ReadByte();
+                ignoreClient = reader.ReadByte();
             }
             else
             {
-                totalSize += sizeof(byte); // whoAmI
+                // Client knows who originally forwarded the packet
+                whoAmI = reader.ReadByte();
             }
         }
 
-        // TODO: Take into account bytes added by ModPacket
-        totalSize += sizeof(short); // mod.NetID
-
-        // Check if the packet data needs to be separated into multiple packets
-        const int maxSize = int.MaxValue; // TODO
-        var split = totalSize >= maxSize;
-        if (split)
-        {
-            totalSize += sizeof(int); // length
-        }
-
-        for (var i = 0; i < bodyBytes.Length;)
-        {
-            // Important that the packet is sent by this mod, so that it is received correctly
-            var modPacket = ModContent.GetInstance<EasyPacketsLibMod>().GetPacket();
-
-            // Mod's net id is synced across server and clients
-            var modNetId = mod.NetID;
-            if (ModNet.NetModCount < 256)
-            {
-                modPacket.Write((byte)modNetId);
-            }
-            else
-            {
-                modPacket.Write(modNetId);
-            }
-
-            // Easy packet type's net id is synced across server and clients
-            var packetNetId = EasyPacketLoader.GetNetId<T>();
-            if (EasyPacketLoader.NetEasyPacketCount < 256)
-            {
-                modPacket.Write((byte)packetNetId);
-            }
-            else
-            {
-                modPacket.Write(packetNetId);
-            }
-
-            // Write any additional flags
-            var flags = new BitsByte {[0] = forward, [1] = split};
-            modPacket.Write(flags);
-
-            // Special case if the packet is to be forwarded
-            if (forward)
-            {
-                if (Main.netMode == NetmodeID.MultiplayerClient)
-                {
-                    // Send this so that the server knows who to forward the packet to
-                    modPacket.Write(toClient < 0 ? (byte)255 : (byte)toClient);
-                    modPacket.Write(ignoreClient < 0 ? (byte)255 : (byte)ignoreClient);
-                }
-                else
-                {
-                    // Send this so that the receiving client knows who originally forwarded the packet
-                    modPacket.Write(whoAmI);
-                }
-            }
-
-            // TODO: Determine length properly. This logic is wrong.
-            var length = Math.Min(bodyBytes.Length - i, maxSize - (totalSize - bodyBytes.Length));
-            if (split)
-            {
-                modPacket.Write(length);
-            }
-
-            // Write the packet data
-            modPacket.Write(new ReadOnlySpan<byte>(bodyBytes, i, i + length));
-            i += length;
-
-            // Finally, send the packet
-            modPacket.Send(toClient, ignoreClient);
-        }
+        // Let the easy packet mod type receive the packet
+        packet.ReceivePacket(reader, new SenderInfo(sentByMod, (byte)whoAmI, flags, toClient, ignoreClient));
     }
-
+    
     #endregion
 }
