@@ -155,7 +155,8 @@ public static class EasyPacketExtensions
         }
         
         // Important that the packet is sent by this mod, so that it is received correctly
-        var modPacket = ModContent.GetInstance<EasyPacketsLibMod>().GetPacket();
+        // If this mod doesn't exist, then a DLL reference is being used instead of a mod reference
+        var modPacket = (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).GetPacket();
 
         // Mod's net id is synced across server and clients
         var modNetId = mod.NetID;

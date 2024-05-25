@@ -1,7 +1,7 @@
 /*
  *  EasyPacketLoader.cs
  *  DavidFDev
-*/
+ */
 
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <summary>
     ///     Check if an easy packet is registered.
     /// </summary>
-    internal static bool IsRegistered<T>() where T : struct, IEasyPacket<T>
+    public static bool IsRegistered<T>() where T : struct, IEasyPacket<T>
     {
         return NetIdByPtr.ContainsKey(typeof(T).TypeHandle.Value);
     }
@@ -39,7 +39,7 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <summary>
     ///     Get an easy packet type by its registered net ID.
     /// </summary>
-    internal static IEasyPacket GetPacket(ushort netId)
+    public static IEasyPacket GetPacket(ushort netId)
     {
         return PacketByNetId.GetValueOrDefault(netId);
     }
@@ -47,7 +47,7 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <summary>
     ///     Get the registered net ID of an easy packet.
     /// </summary>
-    internal static ushort GetNetId<T>() where T : struct, IEasyPacket<T>
+    public static ushort GetNetId<T>() where T : struct, IEasyPacket<T>
     {
         return NetIdByPtr.GetValueOrDefault(typeof(T).TypeHandle.Value);
     }
@@ -55,7 +55,7 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <summary>
     ///     Add an easy packet handler.
     /// </summary>
-    internal static void AddHandler<T>(HandleEasyPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
+    public static void AddHandler<T>(HandleEasyPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
     {
         var ptr = typeof(T).TypeHandle.Value;
         if (!HandlerByPtr.ContainsKey(ptr))
@@ -69,7 +69,7 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <summary>
     ///     Remove an easy packet handler.
     /// </summary>
-    internal static void RemoveHandler<T>(HandleEasyPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
+    public static void RemoveHandler<T>(HandleEasyPacketDelegate<T> handler) where T : struct, IEasyPacket<T>
     {
         var ptr = typeof(T).TypeHandle.Value;
         if (!HandlerByPtr.ContainsKey(ptr))
@@ -83,9 +83,92 @@ internal sealed class EasyPacketLoader : ModSystem
     /// <summary>
     ///     Get the handler for an easy packet.
     /// </summary>
-    internal static HandleEasyPacketDelegate<T> GetHandler<T>() where T : struct, IEasyPacket<T>
+    public static HandleEasyPacketDelegate<T> GetHandler<T>() where T : struct, IEasyPacket<T>
     {
         return HandlerByPtr.GetValueOrDefault(typeof(T).TypeHandle.Value) as HandleEasyPacketDelegate<T>;
+    }
+
+    /// <summary>
+    ///     Register easy packets and handlers of the provided mod.
+    /// </summary>
+    public static void RegisterMod(Mod mod)
+    {
+        if (mod.Side is not ModSide.Both)
+        {
+            return;
+        }
+
+        // Register easy packets
+        var loadableTypes = AssemblyManager.GetLoadableTypes(mod.Code);
+        foreach (var type in loadableTypes
+                     .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketFullName) != null)
+                     .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
+        {
+            RegisterPacket(mod, type);
+        }
+
+        // Register handlers
+        foreach (var type in loadableTypes
+                     .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketHandlerFullName) != null)
+                     .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
+        {
+            RegisterHandler(mod, type);
+        }
+    }
+    
+    /// <summary>
+    ///     Register an easy packet.
+    /// </summary>
+    /// <param name="mod">Mod that defined the easy packet.</param>
+    /// <param name="type">Type that implements <see cref="IEasyPacket{T}" />.</param>
+    private static void RegisterPacket(Mod mod, Type type)
+    {
+        // Ensure the interface generic argument matches the type implementing it
+        // This is not enforced by the code, so we must check it here and explain why in detail
+        var genericArg = type.GetInterface(EasyPacketFullName)!.GetGenericArguments()[0];
+        if (genericArg != type)
+        {
+            throw new Exception($"Failed to register easy packet type: {type.Name}." +
+                                $"\nActual:\n   struct {type.Name} : IEasyPacket<[c/{Color.Red.Hex3()}:{genericArg.Name}]>" +
+                                $"\nExpected:\n   struct {type.Name} : IEasyPacket<[c/{Color.Green.Hex3()}:{type.Name}]>" +
+                                "\nPlease fix the struct definition so that the interface generic argument matches the type implementing it." +
+                                $"\nDefined in mod: [c/{Color.Yellow.Hex3()}:{mod.Name}].\n");
+        }
+
+        // Create a new default instance of the easy packet type
+        // https://stackoverflow.com/a/1151470/20943906
+        var instance = (IEasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(genericArg), true);
+        if (instance == null)
+        {
+            throw new Exception($"Failed to register easy packet type: {type.Name}.");
+        }
+
+        // Register the created instance, assigning a unique net id
+        var netId = NetEasyPacketCount++;
+        PacketByNetId.Add(netId, instance);
+        NetIdByPtr.Add(type.TypeHandle.Value, netId);
+
+        (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).Logger.Debug($"Registered IEasyPacket<{type.Name}> (Mod: {mod.Name}, ID: {netId}).");
+    }
+
+    /// <summary>
+    ///     Register an easy packet handler.
+    /// </summary>
+    /// <param name="mod">Mod that defined the easy packet handler.</param>
+    /// <param name="type">Type that implements <see cref="IEasyPacketHandler{T}" />.</param>
+    private static void RegisterHandler(Mod mod, Type type)
+    {
+        // Create a new default instance of the easy packet handler type, and allow it to register it instead
+        var instance = (IEasyPacketHandler)Activator.CreateInstance(typeof(EasyPacketHandler<,>).MakeGenericType(type, type.GetInterface(EasyPacketHandlerFullName)!.GetGenericArguments()[0]), true);
+        if (instance == null)
+        {
+            throw new Exception($"Failed to register easy packet type: {type.Name}.");
+        }
+
+        // The instance is thrown away because its only purpose is to register itself as a handler
+        instance.Register(mod);
+
+        (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).Logger.Debug($"Registered IEasyPacketHandler<{type.Name}> (Mod: {mod.Name}).");
     }
 
     #endregion
@@ -114,26 +197,11 @@ internal sealed class EasyPacketLoader : ModSystem
 
     public override void Load()
     {
-        // Register easy packets and handlers, including from other mods
+        // Register loaded mods
         // Order must be the same for all users, so that net ids are synced
-        foreach (var mod in ModLoader.Mods
-                     .Where(m => m.Side is ModSide.Both)
-                     .OrderBy(m => m.Name, StringComparer.InvariantCulture))
+        foreach (var mod in ModLoader.Mods.OrderBy(m => m.Name, StringComparer.InvariantCulture))
         {
-            var loadableTypes = AssemblyManager.GetLoadableTypes(mod.Code);
-            foreach (var type in loadableTypes
-                         .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketFullName) != null)
-                         .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
-            {
-                RegisterPacket(mod, type);
-            }
-
-            foreach (var type in loadableTypes
-                         .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketHandlerFullName) != null)
-                         .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
-            {
-                RegisterHandler(mod, type);
-            }
+            RegisterMod(mod);
         }
     }
 
@@ -144,61 +212,6 @@ internal sealed class EasyPacketLoader : ModSystem
         NetIdByPtr.Clear();
         HandlerByPtr.Clear();
         NetEasyPacketCount = 0;
-    }
-
-    /// <summary>
-    ///     Register an easy packet.
-    /// </summary>
-    /// <param name="mod">Mod that defined the easy packet.</param>
-    /// <param name="type">Type that implements <see cref="IEasyPacket{T}" />.</param>
-    private void RegisterPacket(Mod mod, Type type)
-    {
-        // Ensure the interface generic argument matches the type implementing it
-        // This is not enforced by the code, so we must check it here and explain why in detail
-        var genericArg = type.GetInterface(EasyPacketFullName)!.GetGenericArguments()[0];
-        if (genericArg != type)
-        {
-            throw new Exception($"Failed to register easy packet type: {type.Name}." +
-                                $"\nActual:\n   struct {type.Name} : IEasyPacket<[c/{Color.Red.Hex3()}:{genericArg.Name}]>" +
-                                $"\nExpected:\n   struct {type.Name} : IEasyPacket<[c/{Color.Green.Hex3()}:{type.Name}]>" +
-                                "\nPlease fix the struct definition so that the interface generic argument matches the type implementing it." +
-                                $"\nDefined in mod: [c/{Color.Yellow.Hex3()}:{mod.Name}].\n");
-        }
-
-        // Create a new default instance of the easy packet type
-        // https://stackoverflow.com/a/1151470/20943906
-        var instance = (IEasyPacket)Activator.CreateInstance(typeof(EasyPacket<>).MakeGenericType(genericArg), true);
-        if (instance == null)
-        {
-            throw new Exception($"Failed to register easy packet type: {type.Name}.");
-        }
-
-        // Register the created instance, assigning a unique net id
-        var netId = NetEasyPacketCount++;
-        PacketByNetId.Add(netId, instance);
-        NetIdByPtr.Add(type.TypeHandle.Value, netId);
-
-        Mod.Logger.Debug($"Registered IEasyPacket<{type.Name}> (Mod: {mod.Name}, ID: {netId}).");
-    }
-
-    /// <summary>
-    ///     Register an easy packet handler.
-    /// </summary>
-    /// <param name="mod">Mod that defined the easy packet handler.</param>
-    /// <param name="type">Type that implements <see cref="IEasyPacketHandler{T}" />.</param>
-    private void RegisterHandler(Mod mod, Type type)
-    {
-        // Create a new default instance of the easy packet handler type, and allow it to register it instead
-        var instance = (IEasyPacketHandler)Activator.CreateInstance(typeof(EasyPacketHandler<,>).MakeGenericType(type, type.GetInterface(EasyPacketHandlerFullName)!.GetGenericArguments()[0]), true);
-        if (instance == null)
-        {
-            throw new Exception($"Failed to register easy packet type: {type.Name}.");
-        }
-
-        // The instance is thrown away because its only purpose is to register itself as a handler
-        instance.Register(mod);
-
-        Mod.Logger.Debug($"Registered IEasyPacketHandler<{type.Name}> (Mod: {mod.Name}).");
     }
 
     #endregion
