@@ -24,7 +24,7 @@ internal sealed class EasyPacket<T> : IEasyPacket where T : struct, IEasyPacket<
         // Check if the packet should be automatically forwarded to clients
         if (Main.netMode == NetmodeID.Server && sender.Forwarded)
         {
-            sender.Mod.SendPacket_Internal(in packet, sender.WhoAmI, sender.ToClient, sender.IgnoreClient, true);
+            EasyPacketExtensions.SendPacket_Internal(sender.Mod, in packet, sender.WhoAmI, sender.ToClient, sender.IgnoreClient, true);
         }
 
         // Let any handlers handle the received packet

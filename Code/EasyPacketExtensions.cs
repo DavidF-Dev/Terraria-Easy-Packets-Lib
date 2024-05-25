@@ -129,7 +129,7 @@ public static class EasyPacketExtensions
         return new T().Deserialise(reader, in sender);
     }
     
-    internal static void SendPacket_Internal<T>(this Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
+    internal static void SendPacket_Internal<T>(Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
     {
         if (Main.netMode == NetmodeID.SinglePlayer)
         {
