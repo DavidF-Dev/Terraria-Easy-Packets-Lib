@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Added support for using the library as a DLL reference, without a mod reference.
+- Added support for using the library as a DLL reference, without a mod reference (see EasyPacketDLL.cs).
 
 ## [1.0.2] - 2024-05-04
 

@@ -95,12 +95,6 @@ internal sealed class EasyPacketLoader : ModSystem
     /// </summary>
     public static void RegisterMod(Mod mod)
     {
-        if (mod.Side is not ModSide.Both)
-        {
-            // Not supported
-            return;
-        }
-
         if (!RegisteredMods.Add(mod))
         {
             // Already registered
@@ -160,7 +154,7 @@ internal sealed class EasyPacketLoader : ModSystem
         PacketByNetId.Add(netId, instance);
         NetIdByPtr.Add(type.TypeHandle.Value, netId);
 
-        (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).Logger.Debug($"Registered IEasyPacket<{type.Name}> (Mod: {mod.Name}, ID: {netId}).");
+        (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).Logger.Debug($"Registered IEasyPacket<{type.Name}> (Mod: {mod.Name}, ID: {netId})");
     }
 
     /// <summary>
@@ -180,7 +174,7 @@ internal sealed class EasyPacketLoader : ModSystem
         // The instance is thrown away because its only purpose is to register itself as a handler
         instance.Register(mod);
 
-        (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).Logger.Debug($"Registered IEasyPacketHandler<{type.Name}> (Mod: {mod.Name}).");
+        (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).Logger.Debug($"Registered IEasyPacketHandler<{type.Name}> (Mod: {mod.Name})");
     }
 
     #endregion
@@ -199,7 +193,7 @@ internal sealed class EasyPacketLoader : ModSystem
     #region Properties
 
     /// <summary>
-    ///     Total number of easy packets registered across all mods.
+    ///     Total number of easy packets registered across all registered mods.
     /// </summary>
     public static ushort NetEasyPacketCount { get; private set; }
 
@@ -210,7 +204,7 @@ internal sealed class EasyPacketLoader : ModSystem
     public override void Load()
     {
         // Register loaded mods; order must be the same for all users, so that net ids are synced
-        foreach (var mod in ModLoader.Mods.OrderBy(m => m.Name, StringComparer.InvariantCulture))
+        foreach (var mod in ModLoader.Mods.Where(static m => m.Side is ModSide.Both).OrderBy(static m => m.Name, StringComparer.InvariantCulture))
         {
 #if RELEASE
             // Ignore example packets
