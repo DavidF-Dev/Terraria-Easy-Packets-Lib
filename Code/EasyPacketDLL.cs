@@ -37,6 +37,23 @@ public static class EasyPacketDLL
     }
 
     /// <summary>
+    ///     Clear static references when the mod is unloaded.
+    ///     <example>
+    ///         <code>public override void Unload() => EasyPacketDLL.Unload();</code>
+    ///     </example>
+    /// </summary>
+    public static void Unload()
+    {
+        // Ensure this mod is using a DLL reference only
+        if (ModContent.GetInstance<EasyPacketsLibMod>() != null)
+        {
+            return;
+        }
+
+        EasyPacketLoader.ClearStatics();
+    }
+
+    /// <summary>
     ///     Handle incoming easy packets.
     ///     <example>
     ///         <code>public override void HandlePacket(BinaryReader reader, int whoAmI) => EasyPacketDLL.HandlePacket(reader, whoAmI);</code>

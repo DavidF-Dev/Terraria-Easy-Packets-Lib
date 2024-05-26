@@ -123,6 +123,18 @@ internal sealed class EasyPacketLoader : ModSystem
     }
 
     /// <summary>
+    ///     Clear static references when the mod is unloaded.
+    /// </summary>
+    public static void ClearStatics()
+    {
+        PacketByNetId.Clear();
+        NetIdByPtr.Clear();
+        HandlerByPtr.Clear();
+        RegisteredMods.Clear();
+        NetEasyPacketCount = 0;
+    }
+
+    /// <summary>
     ///     Register an easy packet.
     /// </summary>
     /// <param name="mod">Mod that defined the easy packet.</param>
@@ -221,11 +233,7 @@ internal sealed class EasyPacketLoader : ModSystem
     public override void Unload()
     {
         // Ensure the static fields are cleared
-        PacketByNetId.Clear();
-        NetIdByPtr.Clear();
-        HandlerByPtr.Clear();
-        RegisteredMods.Clear();
-        NetEasyPacketCount = 0;
+        ClearStatics();
     }
 
     #endregion
