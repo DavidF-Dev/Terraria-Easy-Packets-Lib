@@ -103,7 +103,7 @@ internal sealed class EasyPacketLoader : ModSystem
 
         // The interface is checked by name (not type), so we must also check which assembly it is defined in
         var assembly = ModContent.GetInstance<EasyPacketsLibMod>()?.Code ?? Assembly.GetExecutingAssembly();
-        
+
         // Register easy packets
         var loadableTypes = AssemblyManager.GetLoadableTypes(mod.Code);
         foreach (var type in loadableTypes

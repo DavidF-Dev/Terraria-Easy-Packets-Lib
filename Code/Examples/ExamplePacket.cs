@@ -1,10 +1,9 @@
 ﻿/*
  *  ExamplePacket.cs
  *  DavidFDev
-*/
+ */
 
 using System.IO;
-using EasyPacketsLib.Internals;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Chat;

@@ -1,7 +1,7 @@
 ﻿/*
  *  EasyPacketExtensions.cs
  *  DavidFDev
-*/
+ */
 
 using System;
 using System.IO;
@@ -128,7 +128,7 @@ public static class EasyPacketExtensions
     {
         return new T().Deserialise(reader, in sender);
     }
-    
+
     internal static void SendPacket_Internal<T>(Mod mod, in T packet, byte whoAmI, int toClient, int ignoreClient, bool forward) where T : struct, IEasyPacket<T>
     {
         if (Main.netMode == NetmodeID.SinglePlayer)
@@ -153,7 +153,7 @@ public static class EasyPacketExtensions
 
             throw new Exception("SendPacket called on an un-synced mod.");
         }
-        
+
         // Important that the packet is sent by this mod, so that it is received correctly
         // If this mod doesn't exist, then a DLL reference is being used instead of a mod reference
         var modPacket = (ModContent.GetInstance<EasyPacketsLibMod>() ?? mod).GetPacket();
@@ -214,7 +214,7 @@ public static class EasyPacketExtensions
         {
             throw new Exception("HandlePacket called in single-player.");
         }
-        
+
         whoAmI = Math.Clamp(whoAmI, 0, 255);
 
         var modNetId = ModNet.NetModCount < 256 ? reader.ReadByte() : reader.ReadInt16();
@@ -222,10 +222,10 @@ public static class EasyPacketExtensions
         var flags = (BitsByte)reader.ReadByte();
         var forward = flags[0];
         var expected = flags[1];
-        
+
         // Get the mod that sent the packet using its net id
         var sentByMod = ModNet.GetMod(modNetId);
-        
+
         // Check if the mod exists and is synced
         if (sentByMod is not {IsNetSynced: true})
         {
@@ -235,7 +235,7 @@ public static class EasyPacketExtensions
             {
                 return;
             }
-            
+
             throw new Exception($"HandlePacket received an invalid mod Net ID: {modNetId}. Could not find a mod with that Net ID.");
         }
 
@@ -267,6 +267,6 @@ public static class EasyPacketExtensions
         // Let the easy packet mod type receive the packet
         packet.ReceivePacket(reader, new SenderInfo(sentByMod, (byte)whoAmI, flags, toClient, ignoreClient));
     }
-    
+
     #endregion
 }

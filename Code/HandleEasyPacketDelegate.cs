@@ -1,7 +1,7 @@
 ﻿/*
  *  HandleEasyPacketDelegate.cs
  *  DavidFDev
-*/
+ */
 
 namespace EasyPacketsLib;
 

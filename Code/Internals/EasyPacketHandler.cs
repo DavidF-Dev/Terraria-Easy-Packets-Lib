@@ -1,7 +1,7 @@
 ﻿/*
  *  EasyPacketHandler.cs
  *  DavidFDev
-*/
+ */
 
 using Terraria.ModLoader;
 
