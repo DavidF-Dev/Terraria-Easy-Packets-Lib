@@ -115,7 +115,7 @@ internal sealed class EasyPacketLoader : ModSystem
             RegisterHandler(mod, type);
         }
     }
-    
+
     /// <summary>
     ///     Register an easy packet.
     /// </summary>
@@ -197,10 +197,16 @@ internal sealed class EasyPacketLoader : ModSystem
 
     public override void Load()
     {
-        // Register loaded mods
+        // Register loaded mods (excluding this one)
         // Order must be the same for all users, so that net ids are synced
         foreach (var mod in ModLoader.Mods.OrderBy(m => m.Name, StringComparer.InvariantCulture))
         {
+#if RELEASE
+            if (mod == Mod)
+            {
+                continue;
+            }
+#endif
             RegisterMod(mod);
         }
     }
