@@ -38,6 +38,7 @@ public static class EasyPacketDLL
 
     /// <summary>
     ///     Clear static references when the mod is unloaded.
+    ///     It is recommended to call this so that references are properly cleared.
     ///     <example>
     ///         <code>public override void Unload() => EasyPacketDLL.Unload();</code>
     ///     </example>
