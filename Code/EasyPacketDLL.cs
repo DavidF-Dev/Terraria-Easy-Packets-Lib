@@ -3,6 +3,7 @@
  *  DavidFDev
  */
 
+using System;
 using System.IO;
 using EasyPacketsLib.Internals;
 using Terraria.ModLoader;
@@ -15,12 +16,18 @@ public static class EasyPacketDLL
 
     public static void RegisterMod(Mod mod)
     {
-        // TODO: Does this still work if the library mod is enabled?
-        // TODO: Will the library mod detect types in this mod when it shouldn't?
+        // NOTE in XML: if registering multiple mods for some reason, order is important
         
-        // Only register the mod if using a DLL reference
+        // Ensure this mod is using a DLL reference only
         if (ModContent.GetInstance<EasyPacketsLibMod>() != null)
         {
+            mod.Logger.Warn($"IGNORE REGISTER MOD FOR: " + mod.Name);
+            return;
+        }
+
+        if (mod.Side is not ModSide.Both)
+        {
+            mod.Logger.Warn($"MUST BE BOTH: " + mod.Name);
             return;
         }
 
@@ -29,7 +36,7 @@ public static class EasyPacketDLL
 
     public static void HandlePacket(BinaryReader reader, int whoAmI)
     {
-        // Only register the mod if using a DLL reference
+        // Ensure this mod is using a DLL reference only
         if (ModContent.GetInstance<EasyPacketsLibMod>() != null)
         {
             return;

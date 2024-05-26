@@ -4,6 +4,7 @@
 */
 
 using System.IO;
+using EasyPacketsLib.Internals;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Chat;
@@ -103,6 +104,15 @@ internal sealed class ExamplePacketCommand : ModCommand
     #endregion
 
     #region Methods
+
+    public override bool IsLoadingEnabled(Mod mod)
+    {
+#if RELEASE
+        return false;
+#else
+        return true;
+#endif
+    }
 
     public override void Action(CommandCaller caller, string input, string[] args)
     {

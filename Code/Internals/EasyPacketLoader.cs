@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
@@ -21,6 +22,7 @@ internal sealed class EasyPacketLoader : ModSystem
     private static readonly Dictionary<ushort, IEasyPacket> PacketByNetId = new();
     private static readonly Dictionary<IntPtr, ushort> NetIdByPtr = new();
     private static readonly Dictionary<IntPtr, MulticastDelegate> HandlerByPtr = new();
+    private static readonly HashSet<Mod> RegisteredMods = [];
     private static readonly string EasyPacketFullName;
     private static readonly string EasyPacketHandlerFullName;
 
@@ -95,13 +97,23 @@ internal sealed class EasyPacketLoader : ModSystem
     {
         if (mod.Side is not ModSide.Both)
         {
+            // Not supported
             return;
         }
 
+        if (!RegisteredMods.Add(mod))
+        {
+            // Already registered
+            return;
+        }
+
+        // The interface is checked by name (not type), so we must also check which assembly it is defined in
+        var assembly = ModContent.GetInstance<EasyPacketsLibMod>()?.Code ?? Assembly.GetExecutingAssembly();
+        
         // Register easy packets
         var loadableTypes = AssemblyManager.GetLoadableTypes(mod.Code);
         foreach (var type in loadableTypes
-                     .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketFullName) != null)
+                     .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketFullName)?.Assembly == assembly)
                      .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
         {
             RegisterPacket(mod, type);
@@ -109,7 +121,7 @@ internal sealed class EasyPacketLoader : ModSystem
 
         // Register handlers
         foreach (var type in loadableTypes
-                     .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketHandlerFullName) != null)
+                     .Where(t => t.IsValueType && !t.ContainsGenericParameters && t.GetInterface(EasyPacketHandlerFullName)?.Assembly == assembly)
                      .OrderBy(t => t.FullName, StringComparer.InvariantCulture))
         {
             RegisterHandler(mod, type);
@@ -197,16 +209,17 @@ internal sealed class EasyPacketLoader : ModSystem
 
     public override void Load()
     {
-        // Register loaded mods (excluding this one)
-        // Order must be the same for all users, so that net ids are synced
+        // Register loaded mods; order must be the same for all users, so that net ids are synced
         foreach (var mod in ModLoader.Mods.OrderBy(m => m.Name, StringComparer.InvariantCulture))
         {
 #if RELEASE
+            // Ignore example packets
             if (mod == Mod)
             {
                 continue;
             }
 #endif
+
             RegisterMod(mod);
         }
     }
@@ -217,6 +230,7 @@ internal sealed class EasyPacketLoader : ModSystem
         PacketByNetId.Clear();
         NetIdByPtr.Clear();
         HandlerByPtr.Clear();
+        RegisteredMods.Clear();
         NetEasyPacketCount = 0;
     }
 
