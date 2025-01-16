@@ -95,6 +95,7 @@ In the above example (in `ModSystem`), removing the handler can be omitted as th
 
 ### Live examples
 - [ExamplePacket.cs](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib/blob/main/Code/Examples/ExamplePacket.cs)
+- [Guid Player Lib](https://github.com/DavidF-Dev/Terraria-Guid-Player-Lib/blob/master/Code/Internals/GuidPlayer.cs#L69)
 - [Downed NPC Library](https://github.com/DavidF-Dev/Terraria-Downed-NPC-Lib/blob/main/Code/Internals/DownedNPCPacket.cs)
 
 ## Contact & Support
